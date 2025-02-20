@@ -1,8 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
+import "dotenv/config"
 
 const app = express();
+
+// connect to MongoDB
+mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => console.log('MongoDB Connected'))
+    .catch((err) => console.log(`DB connection failed: ${err}`) );
 
 // middleware
 app.use(cors());
