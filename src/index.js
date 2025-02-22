@@ -12,6 +12,13 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ error: "Invalid JSON format" });
+    }
+    next();
+});
+
 // connect to MongoDB
 mongoose
     .connect(process.env.MONGODB_URI)

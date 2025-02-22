@@ -79,3 +79,28 @@ export const login = async (req, res) => {
 
 }
 
+export const forgotPassword = async (req, res) => {
+    try {
+        console.log("Req body", req.body);
+        const {email} = req.body;
+
+        let user = await User.findOne({email});
+        if (!user) {
+            return res.send({error: "The password will be sent to your email shortly"});
+        }
+
+        const password = nanoid(6);
+        user.password = await hashPassword(password);
+        await user.save();
+
+        //send email
+        res.json({
+           newPassword: password
+        });
+    } catch (err) {
+        console.log("Forgot pwd error: ", err);
+        res.send({error: "Something went wrong"});
+    }
+
+}
+
