@@ -97,7 +97,6 @@ export const forgotPassword = async (req, res) => {
         console.log("Forgot pwd error: ", err);
         res.send({error: "Something went wrong"});
     }
-
 };
 
 export const currentUser = async (req, res) => {
@@ -107,6 +106,29 @@ export const currentUser = async (req, res) => {
         res.json({user});
     } catch (err) {
         console.log("Current user error: ",err);
+        res.send({error: "Something went wrong"});
+    }
+};
+
+export const updatePassword = async (req, res) => {
+    try {
+        let {password} = req.body;
+        password = password ? password.trim() : "";
+
+        if (!password) {
+            return res.json({error: "Password is required"});
+        }
+
+        if (password.length < 6) {
+            return res.json({error: "Password must be at least 6 characters"});
+        }
+
+        await User.findByIdAndUpdate(req.user._id, {password: await hashPassword(password)});
+        res.json({
+            ok: true
+        })
+    }catch (err) {
+        console.log("Update password Error occurred", err);
         res.send({error: "Something went wrong"});
     }
 };
