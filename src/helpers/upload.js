@@ -58,3 +58,19 @@ export const uploadImageToS3 = async (files, uploadedBy) => {
     return Promise.all(uploadPromises);
 
 };
+
+export const deleteImageFromS3 = async (Key) => {
+
+    const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key
+    }
+
+    try {
+        const command = new DeleteObjectCommand(params);
+        await client.send(command);
+    }catch (err) {
+        console.log("deleteImageFromS3 error", err);
+        throw new Error("Delete from s3 failed");
+    }
+};

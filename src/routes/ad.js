@@ -7,6 +7,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/upload-image", requireSignIn, upload.any(), ad.uploadImage);
+router.delete("/remove-image", requireSignIn, ad.removeImage);
 
 export default router;
 
