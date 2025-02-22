@@ -32,7 +32,6 @@ const uploadToS3 = async (buffer, mimetype, uploadedBy) => {
         Key,
         Body: buffer,
         ContentType: mimetype,
-        ACL: 'public-read',
     };
 
     try {
