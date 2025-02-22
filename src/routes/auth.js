@@ -10,6 +10,7 @@ router.post("/forgot-password", auth.forgotPassword);
 
 router.get("/current-user", requireSignIn, auth.currentUser);
 router.put("/update-password", requireSignIn, auth.updatePassword);
+router.put("/update-username", requireSignIn, auth.updateUsername);
 
 export default router;
 

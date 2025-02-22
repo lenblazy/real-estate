@@ -133,3 +133,39 @@ export const updatePassword = async (req, res) => {
     }
 };
 
+export const updateUsername = async (req, res) => {
+    try {
+        let {username} = req.body;
+
+        if (!username || !username.trim()) {
+            return res.json({error: "Username is required"});
+        }
+
+        if (username.length < 6) {
+            return res.json({error: "Username must be at least 6 characters"});
+        }
+
+        username = username.trim();
+
+        // check if username is already taken
+        const existingUser = await User.findOne({username});
+        if (existingUser) {
+            return res.json({error: "Username already exists. Use another one"});
+        }
+
+        // update username
+        const updateUser = await User.findByIdAndUpdate(req.user._id, {username}, {new: true});
+        updateUser.password = undefined;
+        res.json({
+            ok: true,
+            user: updateUser
+        })
+
+    }catch (err) {
+        console.log("Update username Error occurred", err);
+        res.send({error: "Something went wrong"});
+    }
+};
+
+
+
