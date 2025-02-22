@@ -34,11 +34,9 @@ export const login = async (req, res) => {
                     username: nanoid(6),
                 });
             const token = jwt.sign(
-                {
-                    _id: createdUser._id,
-                    expires: {expiresIn: "7d"},
-                },
-                process.env.JWT_SECRET
+                {_id: createdUser._id},
+                process.env.JWT_SECRET,
+                {expiresIn: "7d"}
             )
 
             createdUser.password = undefined;
@@ -55,11 +53,9 @@ export const login = async (req, res) => {
                 });
             } else {
                 const token = jwt.sign(
-                    {
-                        _id: user._id,
-                        expires: {expiresIn: "7d"},
-                    },
-                    process.env.JWT_SECRET
+                    {_id: user._id},
+                    process.env.JWT_SECRET,
+                    {expiresIn: "7d"}
                 );
 
                 user.password = undefined;
@@ -95,7 +91,7 @@ export const forgotPassword = async (req, res) => {
 
         //send email
         res.json({
-           newPassword: password
+            newPassword: password
         });
     } catch (err) {
         console.log("Forgot pwd error: ", err);
