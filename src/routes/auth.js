@@ -5,9 +5,10 @@ import {requireSignIn} from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/login", requireSignIn, auth.login);
+router.post("/login", auth.login);
 router.post("/forgot-password", auth.forgotPassword);
 
+router.get("/current-user", requireSignIn, auth.currentUser);
 
 export default router;
 

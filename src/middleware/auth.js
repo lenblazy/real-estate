@@ -9,8 +9,6 @@ export const requireSignIn = (req, res, next) => {
          next();
     } catch (err) {
         console.log(err);
-        res.status(401).send({
-            error: "Unauthorized",
-        })
+        res.send(err);
     }
 };

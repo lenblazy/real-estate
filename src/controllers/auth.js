@@ -98,5 +98,16 @@ export const forgotPassword = async (req, res) => {
         res.send({error: "Something went wrong"});
     }
 
-}
+};
+
+export const currentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        user.password = undefined;
+        res.json({user});
+    } catch (err) {
+        console.log("Current user error: ",err);
+        res.send({error: "Something went wrong"});
+    }
+};
 
