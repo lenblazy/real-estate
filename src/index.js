@@ -4,6 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
+import adRoutes from './routes/ad.js';
 
 const app = express();
 
@@ -26,6 +27,8 @@ mongoose
         console.log('MongoDB Connected');
         // routes middlewares
         app.use("/api/v1", authRoutes);
+        app.use("/api/v1", adRoutes);
+
         app.listen(3000, () => console.log("Server is running on port 3000"));
     })
     .catch((err) => console.log(`DB connection failed: ${err}`));
