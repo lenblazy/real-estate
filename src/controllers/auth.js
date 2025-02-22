@@ -34,11 +34,9 @@ export const login = async (req, res) => {
                     username: nanoid(6),
                 });
             const token = jwt.sign(
-                {
-                    _id: createdUser._id,
-                    expires: {expiresIn: "7d"},
-                },
-                process.env.JWT_SECRET
+                {_id: createdUser._id},
+                process.env.JWT_SECRET,
+                {expiresIn: "7d"}
             )
 
             createdUser.password = undefined;
@@ -55,11 +53,9 @@ export const login = async (req, res) => {
                 });
             } else {
                 const token = jwt.sign(
-                    {
-                        _id: user._id,
-                        expires: {expiresIn: "7d"},
-                    },
-                    process.env.JWT_SECRET
+                    {_id: user._id},
+                    process.env.JWT_SECRET,
+                    {expiresIn: "7d"}
                 );
 
                 user.password = undefined;
@@ -95,12 +91,81 @@ export const forgotPassword = async (req, res) => {
 
         //send email
         res.json({
-           newPassword: password
+            newPassword: password
         });
     } catch (err) {
         console.log("Forgot pwd error: ", err);
         res.send({error: "Something went wrong"});
     }
+};
 
-}
+export const currentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        user.password = undefined;
+        res.json({user});
+    } catch (err) {
+        console.log("Current user error: ",err);
+        res.send({error: "Something went wrong"});
+    }
+};
+
+export const updatePassword = async (req, res) => {
+    try {
+        let {password} = req.body;
+        password = password ? password.trim() : "";
+
+        if (!password) {
+            return res.json({error: "Password is required"});
+        }
+
+        if (password.length < 6) {
+            return res.json({error: "Password must be at least 6 characters"});
+        }
+
+        await User.findByIdAndUpdate(req.user._id, {password: await hashPassword(password)});
+        res.json({
+            ok: true
+        })
+    }catch (err) {
+        console.log("Update password Error occurred", err);
+        res.send({error: "Something went wrong"});
+    }
+};
+
+export const updateUsername = async (req, res) => {
+    try {
+        let {username} = req.body;
+
+        if (!username || !username.trim()) {
+            return res.json({error: "Username is required"});
+        }
+
+        if (username.length < 6) {
+            return res.json({error: "Username must be at least 6 characters"});
+        }
+
+        username = username.trim();
+
+        // check if username is already taken
+        const existingUser = await User.findOne({username});
+        if (existingUser) {
+            return res.json({error: "Username already exists. Use another one"});
+        }
+
+        // update username
+        const updateUser = await User.findByIdAndUpdate(req.user._id, {username}, {new: true});
+        updateUser.password = undefined;
+        res.json({
+            ok: true,
+            user: updateUser
+        })
+
+    }catch (err) {
+        console.log("Update username Error occurred", err);
+        res.send({error: "Something went wrong"});
+    }
+};
+
+
 
