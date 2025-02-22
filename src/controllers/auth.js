@@ -1,6 +1,6 @@
 import validator from "email-validator";
 import User from "../models/user.js";
-import {hashPassword} from "../helpers/auth.js";
+import {comparePassword, hashPassword} from "../helpers/auth.js";
 import {nanoid} from "nanoid";
 import jwt from "jsonwebtoken";
 
@@ -11,10 +11,6 @@ export const login = async (req, res) => {
     // validations
     if (!validator.validate(email)) {
         return res.json({error: "A valid Email is required"});
-    }
-
-    if (!email?.trim()) {
-        return res.json({error: "Email is required"});
     }
 
     if (!password.trim()) {
@@ -30,43 +26,55 @@ export const login = async (req, res) => {
         const user = await User.findOne({email});
         if (!user) {
             // Once you set up email sending
-            try {
-                await sendWelcomeEmail(email);
-                const createdUser = await User.create(
-                    {
-                        email: email,
-                        password: await hashPassword(password),
-                        username: nanoid(6),
-                    });
-                const token = jwt.sign({
-                    _id: createdUser._id,
-                    secret: process.env.SECRET_KEY,
-                    expires: {expiresIn: "7d"},
-                })
-
-                createdUser.password = undefined;
-                res.json({
-                    token,
-                    user: createdUser
+            // await sendWelcomeEmail(email);
+            const createdUser = await User.create(
+                {
+                    email: email,
+                    password: await hashPassword(password),
+                    username: nanoid(6),
                 });
-            } catch (err) {
-                return res.json({
-                    error: "Invalid email. Please use a valid email address",
-                })
-            }
+            const token = jwt.sign(
+                {
+                    _id: createdUser._id,
+                    expires: {expiresIn: "7d"},
+                },
+                process.env.JWT_SECRET
+            )
 
-            return res.json({error: "User not found"});
+            createdUser.password = undefined;
+            res.json({
+                token,
+                user: createdUser
+            });
         } else {
             // compare pwd then login
+            const match = await comparePassword(password, user.password);
+            if (!match) {
+                return res.json({
+                    error: "Password is incorrect"
+                });
+            } else {
+                const token = jwt.sign(
+                    {
+                        _id: user._id,
+                        expires: {expiresIn: "7d"},
+                    },
+                    process.env.JWT_SECRET
+                );
+
+                user.password = undefined;
+
+                res.json({
+                    token,
+                    user
+                });
+            }
         }
-
-
-
-        // check if pwd is correct
-        // Generate token
-        // send token to client
     } catch (e) {
-
+        console.log("Error occurred", e);
+        return res.json({
+            error: "Something went wrong"
+        });
     }
 
 }
