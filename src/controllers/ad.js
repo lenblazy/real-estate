@@ -1,5 +1,7 @@
 // import {deleteImageFromS3, uploadImageToS3} from "../helpers/upload.js";
 
+import {geocodeAddress} from "../helpers/google.js";
+
 export const uploadImage = async (req, res) => {
     try {
         if (!req.files || req.files.length < 1) {
@@ -31,6 +33,23 @@ export const removeImage = async (req, res) => {
         //remove image
         await deleteImageFromS3(Key);
         return res.json({ error: "Image deleted" });
+    } catch (err) {
+        console.log("Remove image error: ",err);
+        res.send({error: "Remove Image failed."});
+    }
+};
+
+export const createAd = async (req, res) => {
+    try {
+       const { address } = req.body;
+
+       if (!address.trim()) {
+           return res.json({ error: "Address is required" });
+       }
+
+       const { location, googleMap } = await geocodeAddress(address);
+       res.json({location, googleMap});
+
     } catch (err) {
         console.log("Remove image error: ",err);
         res.send({error: "Remove Image failed."});
