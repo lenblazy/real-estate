@@ -1,4 +1,4 @@
-import {deleteImageFromS3, uploadImageToS3} from "../helpers/upload.js";
+// import {deleteImageFromS3, uploadImageToS3} from "../helpers/upload.js";
 
 export const uploadImage = async (req, res) => {
     try {
