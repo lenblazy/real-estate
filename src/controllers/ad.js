@@ -1,6 +1,5 @@
 // import {deleteImageFromS3, uploadImageToS3} from "../helpers/upload.js";
-
-import {geocodeAddress} from "../helpers/google.js";
+import {deleteImage, uploadImages} from "../helpers/upload-google.js";
 
 export const uploadImage = async (req, res) => {
     try {
@@ -10,10 +9,8 @@ export const uploadImage = async (req, res) => {
 
         // if only one file is uploaded, multer returns it as a simple object. not array
         const files = Array.isArray(req.files) ? req.files : [req.files];
-
         // upload image to s3
-        const result = await uploadImageToS3(files, req.user._id);
-        console.log("Upload results", result);
+        const result = await uploadImages(files, req.user._id);
         res.json(result);
     } catch (err) {
         console.log("Upload image error: ",err);
@@ -23,7 +20,7 @@ export const uploadImage = async (req, res) => {
 
 export const removeImage = async (req, res) => {
     try {
-        const { Key, uploadedBy } = req.body;
+        const { fileName, uploadedBy } = req.body;
 
         // check if the current user id matches the uploadedBy id
         if (req.user._id !== uploadedBy) {
@@ -31,8 +28,8 @@ export const removeImage = async (req, res) => {
         }
 
         //remove image
-        await deleteImageFromS3(Key);
-        return res.json({ error: "Image deleted" });
+        const result = await deleteImage(fileName);
+        return res.json({ error: result });
     } catch (err) {
         console.log("Remove image error: ",err);
         res.send({error: "Remove Image failed."});
